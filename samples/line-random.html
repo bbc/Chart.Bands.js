@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart.JS Bands</title>
+    <script src="../node_modules/chart.js/dist/Chart.bundle.js"></script>
+    <script src="../Chart.Bands.js"></script>
+    <style>
+    </style>
+</head>
+
+<body>
+    <div style="width:75%;">
+        <canvas id="canvas"></canvas>
+    </div>
+    <br>
+    <script>
+        var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        var randomScalingFactor = function() {
+            return Math.round(Math.random() * 100);
+            //return 0;
+        };
+        var randomColorFactor = function() {
+            return Math.round(Math.random() * 255);
+        };
+        var randomColor = function(opacity) {
+            return 'rgba(' + randomColorFactor() + ',' + randomColorFactor() + ',' + randomColorFactor() + ',' + (opacity || '.3') + ')';
+        };
+
+        var config = {
+            type: 'line',
+            data: {
+                labels: ["January", "February", "March", "April", "May", "June", "July"],
+                datasets: [{
+                    label: "My First dataset",
+                    data: [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor()],
+                    fill: false,
+                    borderDash: [5, 5],
+                    borderColor: randomColor(1),
+                },{
+                    label: "My Second dataset",
+                    data: [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor()],
+                    fill: false,
+                    borderColor: randomColor(1),
+                }]
+            },
+            options: {
+                responsive: true,
+                title:{
+                    display:true,
+                    text:'Chart.js Line Chart'
+                },
+                tooltips: {
+                    mode: 'label',
+                    callbacks: {
+                        // beforeTitle: function() {
+                        //     return '...beforeTitle';
+                        // },
+                        // afterTitle: function() {
+                        //     return '...afterTitle';
+                        // },
+                        // beforeBody: function() {
+                        //     return '...beforeBody';
+                        // },
+                        // afterBody: function() {
+                        //     return '...afterBody';
+                        // },
+                        // beforeFooter: function() {
+                        //     return '...beforeFooter';
+                        // },
+                        // footer: function() {
+                        //     return 'Footer';
+                        // },
+                        // afterFooter: function() {
+                        //     return '...afterFooter';
+                        // },
+                    }
+                },
+                hover: {
+                    mode: 'dataset'
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            show: true,
+                            labelString: 'Month'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            show: true,
+                            labelString: 'Value'
+                        },
+                        ticks: {
+                            suggestedMin: 0,
+                            suggestedMax: 150,
+                        }
+                    }]
+                },
+                bands: {
+                        yValue: randomScalingFactor(),
+                        bandLine: {
+                            stroke: 1,
+                            colour: "black",
+                            type: 'dashed',
+                            label: 'Band line'
+                        },
+                        baseColorGradientColor: [
+                            randomColor(1),
+                            randomColor(1)
+                        ]
+                    }
+            }
+        };
+
+  
+
+        window.onload = function() {
+            var ctx = document.getElementById("canvas").getContext("2d");
+            window.myLine = new Chart(ctx, config);
+        };
+
+    </script>
+</body>
+
+</html>

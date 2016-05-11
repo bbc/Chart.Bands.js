@@ -1,9 +1,12 @@
-// To Do - Are baselines even useful with anything other than a Line chart?? Andy??
-
 // Get the chart variable
 var Chart = require('Chart');
 Chart = typeof(Chart) === 'function' ? Chart : window.Chart;
 var helpers = Chart.helpers;
+var supportedTypes = {
+    'bubble': true,
+    'line': true
+};
+var isSupported = true;
 
 // Take the bands namespace of Chart
 Chart.Bands = Chart.Bands || {};
@@ -11,71 +14,130 @@ Chart.Bands = Chart.Bands || {};
 // Default options if none are provided
 var defaultOptions = Chart.Bands.defaults = {
     bands: {
-        y: false,
-        colours: []
-    },
+        yValue: false,
+        bandLine: {
+            stroke: 0.01,
+            colour: 'rgba(0, 0, 0, 1.000)',
+            type: 'solid'
+        },
+        baseColorGradientColor: [
+            'rgba(0, 255, 0, 1.000)'
+        ]
+    }
 };
+function addBandLine(ctx, scale, constraints ,options) {
+    var yPos = scale.getPixelForValue(options.yValue),
+        bandLine    = helpers.getValueOrDefault(options.bandLine ? options.bandLine : undefined, Chart.Bands.defaults.bands.bandLine);
+    
+    if (bandLine.type == 'dashed') {
+        for (var i = constraints.start; i < constraints.stop; i = i + 6) {
+            drawBandLine(ctx, yPos, i, i + 4, bandLine.stroke, bandLine.colour);
+        };
+    } else {
+        drawBandLine(ctx, yPos, constraints.start, constraints.stop, bandLine.stroke, bandLine.colour);
+    }
+    // To Do - weord bug lets do some research
+    addBandLineLabel(ctx, bandLine.label);
+}
 
-// To Do - The line needs to be configurable (colour, weight) - We should pass the entire object in to here
-function drawBandLine(scale, value, node, left, right) {
-    var ctx = node.getContext("2d"),
-        yPos = scale.getPixelForValue(value)
-
+function drawBandLine(ctx, yPos, start, stop, stroke, colour) {
     ctx.beginPath();
-    ctx.moveTo(left, yPos);
-    ctx.lineTo(right, yPos);
-    ctx.lineWidth = 1;
+    ctx.moveTo(start, yPos);
+    ctx.lineTo(stop, yPos);
+    ctx.lineWidth = stroke;
+    ctx.strokeStyle = colour;
     ctx.stroke();
 }
 
-// To Do - Should take the baseColor and apply the gradient colour.
-function calculateGradientFill(scale, value, height, node, colours) {
-    var ctx = node.getContext("2d"), // Maybe ctx should be the argument
-        yPos = scale.getPixelForValue(value),
+function addBandLineLabel(ctx, label) {
+
+    if(label != undefined) {
+          console.log('draw label');
+          ctx.font = "48px serif";
+          ctx.fillText(label, 0, 0);
+    }
+}
+
+function calculateGradientFill(ctx, scale, height, borderColor, gradientColor, value) {
+    var yPos = scale.getPixelForValue(value),
         grd = ctx.createLinearGradient(0, height, 0, 0),
         gradientStop = 1 - (yPos / height);
 
-    grd.addColorStop(0, 'rgba(255, 0, 0, 1.000)');
-    grd.addColorStop(gradientStop, 'rgba(255, 0, 0, 0.500)');
-    grd.addColorStop(gradientStop, 'rgba(0, 255, 0, 0.500)');
-    grd.addColorStop(1.00, 'rgba(0, 255, 0, 1.000)');
+    grd.addColorStop(0, borderColor);
+    grd.addColorStop(gradientStop, borderColor);
+    grd.addColorStop(gradientStop, gradientColor);
+    grd.addColorStop(1.00, gradientColor);
 
     return grd;
 }
 
+function isPluginSupported(type) {
+    
+    if (!!supportedTypes[type]) {
+        return;
+    }
+    console.warn('The Chart.Bands.js plugin is not supported with chart type ' + type);
+    isSupported = false
+    
+}
 
 var BandsPlugin = Chart.PluginBase.extend({
-    beforeUpdate: function(chartInstance) {
-        var node = chartInstance.chart.ctx.canvas,
+    beforeInit: function (chartInstance) {
+        isPluginSupported(chartInstance.config.type);
+    },
+
+    afterScaleUpdate: function(chartInstance) {
+        var node    = chartInstance.chart.ctx.canvas,
             options = chartInstance.options,
-            band  = helpers.getValueOrDefault(options.bands ? options.bands : undefined, Chart.Bands.defaults.bands),
+            band    = helpers.getValueOrDefault(options.bands ? options.bands : undefined, Chart.Bands.defaults.bands),
+            borderColor,
             fill;
+
+   
         
-        // To Do - So this should loop through all DataSets
-        // To do throw a meaningful error
-        if (typeof band.colours === 'object' && band.colours.length == 2) {
-            fill = calculateGradientFill(chartInstance.scales['y-axis-0'], band.y, chartInstance.chart.height,node, band.colours);
-            chartInstance.chart.config.data.datasets[0].borderColor = fill;
+        if (typeof band.baseColorGradientColor === 'object' && band.baseColorGradientColor.length > 0 && typeof band.yValue === 'number') {
+
+            if(isSupported == false) { return ;}
+
+            for (var i = 0; i < chartInstance.chart.config.data.datasets.length; i++) {
+                borderColor = chartInstance.chart.config.data.datasets[i].borderColor;
+                fill = calculateGradientFill(
+                                        node.getContext("2d"),
+                                        chartInstance.scales['y-axis-0'],
+                                        chartInstance.chart.height,
+                                        borderColor,
+                                        band.baseColorGradientColor[i],
+                                        band.yValue
+                                    );
+                chartInstance.chart.config.data.datasets[i].borderColor = fill;
+            };
+        } else {
+            console.warn('ConfigError: The Chart.Bands.js config seems incorrect');
         }
     },
 
-    // We should only have one baseline otherwise its not a baseline
     afterDraw: function(chartInstance) {
-        var node = chartInstance.chart.ctx.canvas,
-            options = chartInstance.options,
-            band  = helpers.getValueOrDefault(options.bands ? options.bands : undefined, Chart.Bands.defaults.bands);
+        var node        = chartInstance.chart.ctx.canvas,
+            options     = chartInstance.options,
+            bandOptions = helpers.getValueOrDefault(options.bands ? options.bands : undefined, Chart.Bands.defaults.bands);
 
-        // To do throw a meaningful error
-        if (typeof band.y === 'number') {
-            drawBandLine(chartInstance.scales['y-axis-0'], band.y, node, chartInstance.chartArea.left, chartInstance.chartArea.right);
-        };
+        if(isSupported == false) { return ;}
 
+        if (typeof bandOptions.yValue === 'number') {
+            addBandLine(
+                node.getContext("2d"),
+                chartInstance.scales['y-axis-0'],
+                {
+                    'start': chartInstance.chartArea.left,
+                    'stop': chartInstance.chartArea.right
+                },
+                bandOptions
+            );
+        } else {
+            console.warn('ConfigError: The Chart.Bands.js plugin config requires a yValue');
+        }
     },
 
-    // Do I need??
-    destroy: function(chartInstance) {
-        var node = chartInstance.chart.ctx.canvas;
-    }
 
 });
 
