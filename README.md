@@ -44,7 +44,7 @@ The following features still need to be done:
 
 ## Installation
 
-To download a zip, go to the Chart.Zoom.js on Github
+To download a zip, go to the Chart.Bands.js on Github
 
 ## License
 
