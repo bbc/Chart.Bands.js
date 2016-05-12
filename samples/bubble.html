@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart.JS Bands</title>
+    <script src="../node_modules/chart.js/dist/Chart.bundle.js"></script>
+    <script src="../Chart.Bands.js"></script>
+    <style>
+    </style>
+</head>
+
+<body>
+    <div id="container" style="width: 75%;">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        var DEFAULT_DATASET_SIZE = 7;
+
+        var addedCount = 0;
+
+        var randomScalingFactor = function() {
+            return (Math.random() > 0.5 ? 1.0 : -1.0) * Math.round(Math.random() * 100);
+        };
+        var randomColorFactor = function() {
+            return Math.round(Math.random() * 255);
+        };
+        var randomColor = function() {
+            return 'rgba(' + randomColorFactor() + ',' + randomColorFactor() + ',' + randomColorFactor() + ',.7)';
+        };
+
+        var bubbleChartData = {
+            animation: {
+                duration: 10000
+            },
+            datasets: [{
+                label: "My First dataset",
+                backgroundColor: randomColor(),
+                data: [{
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }]
+            }, {
+                label: "My Second dataset",
+                backgroundColor: randomColor(),
+                data: [{
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }, {
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                    r: Math.abs(randomScalingFactor()) / 5,
+                }]
+            }]
+        };
+
+        window.onload = function() {
+            var ctx = document.getElementById("canvas").getContext("2d");
+            window.myChart = new Chart(ctx, {
+                type: 'bubble',
+                data: bubbleChartData,
+                options: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    responsive: true,
+                    title:{
+                        display:true,
+                        text:'Chart.js Bubble Chart'
+                    },
+                    bands: {
+                        yValue: randomScalingFactor(),
+                        bandLine: {
+                            stroke: 1,
+                            colour: 'black'
+                        },
+                        baseColorGradientColor: [
+                            randomColor(1),
+                            randomColor(1)
+                        ]
+                    }
+                }
+            });
+        };
+
+    </script>
+</body>
+
+</html>
