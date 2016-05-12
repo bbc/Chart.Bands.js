@@ -40,7 +40,7 @@ The following features still need to be done:
 
 
 * To allow more than one band 
-* To improve legends when a Band is displayed // Default legends can be a little misleading
+* To improve legends when a Band is displayed *Default legends can be a little misleading*
 
 ## Installation
 
