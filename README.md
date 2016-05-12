@@ -12,7 +12,7 @@ This plugin allows you to do that easily and primarily supports line charts, whi
 
 ## Configuration
 
-To configure the zoom and pan plugin, you can simply add new config options to your chart config.
+To configure the bands plugin, you can simply add new config options to your chart config.
 
 ```javascript
 {
