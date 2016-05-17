@@ -1,0 +1,22 @@
+{
+  "name": "Chart.Band.js",
+  "description": "Chart.js plugin to allow banding on a chart",
+  "main": "src/chart.Bands.js",
+  "authors": [
+    "Tarqwyn <steven@tarquindandy.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "Chart.js",
+    "plugin",
+    "charting"
+  ],
+  "homepage": "https://github.com/bbc/Chart.Bands.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
