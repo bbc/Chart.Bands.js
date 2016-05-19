@@ -1,6 +1,6 @@
 /*!
  * Chart.bands.js
- * Version: v0.2.0-rc
+ * Version: v0.3.0-rc
  *
  * Copyright 2016 BBC
  * Released under the MIT license
