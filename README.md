@@ -28,7 +28,7 @@ To configure the bands plugin, you can simply add new config options to your cha
             fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif',
             fontStyle: 'normal'
         },
-        baseColorGradientColor: [      // An array of the colors that describes the below threshold colour to use the above threshold color is inherited from the dataset
+        belowThresholdColour: [      // An array of the colors that describes the below threshold colour to use the above threshold color is inherited from the dataset
             'rgba(0, 255, 0, 1.000)'
         ]
     }
