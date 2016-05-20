@@ -1,7 +1,7 @@
 {
   "name": "Chart.Zoom.js",
   "description": "Simple HTML5 charts using the canvas element.",
-  "version": "v0.2.0-rc",
+  "version": "v0.3.0-rc",
   "license": "MIT",
   "main": "src/chart.Bands.js",
   "repository": {
@@ -9,7 +9,7 @@
     "url": "https://github.com/chartjs/Chart.Bands.js.git"
   },
   "devDependencies": {
-    "gulp": "3.9.x"
+    "gulp": "^3.9.1"
   },
   "dependencies": {
     "browserify": "^13.0.0",
