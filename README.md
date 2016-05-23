@@ -1,6 +1,6 @@
 # Chart.Bands.js
 
-A plugin for Chart.js >= 2.1.0 thats allows banding on a chart
+A plugin for Chart.js >= 2.1.3 thats allows banding on a chart
 
 Sometimes when displaying information on a line chart you want to differentiate between values above and below a threshold in a dataset.
 
