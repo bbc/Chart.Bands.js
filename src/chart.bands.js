@@ -6,6 +6,7 @@ Chart = typeof(Chart) === 'function' ? Chart : window.Chart;
 helpers = Chart.helpers;
 isSupported = true;
 colourProfile = 'borderColor';
+baseColor = [];
 
 supportedTypes = {
     'bubble': 'backgroundColor',
@@ -117,12 +118,15 @@ function isPluginSupported (type) {
 var BandsPlugin = Chart.PluginBase.extend({
     beforeInit: function (chartInstance) {
         isPluginSupported(chartInstance.config.type);
+        // capture the baseColors so we can reapply on resize.
+        for (var i = 0; i < chartInstance.chart.config.data.datasets.length; i++) {
+            baseColor[i] = chartInstance.chart.config.data.datasets[i][colourProfile]; 
+        }
     },
 
     afterScaleUpdate: function (chartInstance) {
         var node,
             bandOptions,
-            baseColor,
             fill;
 
         if(isSupported === false) { return ; }
@@ -133,13 +137,11 @@ var BandsPlugin = Chart.PluginBase.extend({
         if (pluginBandOptionsHaveBeenSet(bandOptions)) {
 
             for (var i = 0; i < chartInstance.chart.config.data.datasets.length; i++) {
-                baseColor = chartInstance.chart.config.data.datasets[i][colourProfile];
-                if (baseColor instanceof CanvasGradient) { return; }
                 fill = calculateGradientFill(
                                         node.getContext("2d"),
                                         chartInstance.scales['y-axis-0'],
                                         chartInstance.chart.height,
-                                        baseColor,
+                                        baseColor[i],
                                         bandOptions.belowThresholdColour[i],
                                         bandOptions.yValue
                                     );
