@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+  watch = require('gulp-watch'),
   concat = require('gulp-concat'),
   uglify = require('gulp-uglify'),
   util = require('gulp-util'),
@@ -25,30 +26,36 @@ var header = "/*!\n\
  * https://github.com/BBC/Chart.bands.js/blob/master/LICENSE.md\n\
  */\n";
 
+gulp.task('watch', watchTask);
 gulp.task('build', buildTask);
 gulp.task('jshint', jshintTask);
 
-function buildTask() {
-  var nonBundled = browserify('./src/chart.bands.js')
-    .ignore('Chart')
-    .bundle()
-    .pipe(source('Chart.Bands.js'))
-    .pipe(insert.prepend(header))
-    .pipe(streamify(replace('{{ version }}', package.version)))
-    .pipe(gulp.dest(outDir))
-    .pipe(streamify(uglify({
-      preserveComments: 'some'
-    })))
-    .pipe(streamify(concat('Chart.Bands.min.js')))
-    .pipe(gulp.dest(outDir));
+function watchTask() {
+    gulp.watch('./src/*.js', buildTask);
+}
 
-  return nonBundled;
+function buildTask() {
+    console.log('build');
+    var nonBundled = browserify('./src/chart.bands.js')
+        .ignore('Chart')
+        .bundle()
+        .pipe(source('Chart.Bands.js'))
+        .pipe(insert.prepend(header))
+        .pipe(streamify(replace('{{ version }}', package.version)))
+        .pipe(gulp.dest(outDir))
+        .pipe(streamify(uglify({
+            preserveComments: 'some'
+        })))
+        .pipe(streamify(concat('Chart.Bands.min.js')))
+        .pipe(gulp.dest(outDir));
+
+    return nonBundled;
 
 }
 
 function jshintTask() {
-  return gulp.src(srcDir + '**/*.js')
-    .pipe(jshint('config.jshintrc'))
-    .pipe(jshint.reporter('default'))
-    .pipe(jshint.reporter('fail'));
+    return gulp.src(srcDir + '**/*.js')
+        .pipe(jshint('config.jshintrc'))
+        .pipe(jshint.reporter('default'))
+        .pipe(jshint.reporter('fail'));
 }

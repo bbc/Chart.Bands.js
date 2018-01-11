@@ -9,7 +9,8 @@
     "url": "https://github.com/chartjs/Chart.Bands.js.git"
   },
   "devDependencies": {
-    "gulp": "^3.9.1"
+    "gulp": "^3.9.1",
+    "gulp-watch": "^5.0.0"
   },
   "dependencies": {
     "browserify": "^13.0.0",
