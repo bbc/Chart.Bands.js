@@ -1,7 +1,7 @@
 {
   "name": "Chart.Bands.js",
   "description": "Simple HTML5 charts using the canvas element.",
-  "version": "v0.4.0-rc",
+  "version": "v0.5.0-rc",
   "license": "MIT",
   "main": "src/chart.Bands.js",
   "repository": {
