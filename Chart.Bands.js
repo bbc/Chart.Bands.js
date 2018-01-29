@@ -39,7 +39,9 @@ defaultOptions = Chart.Bands.defaults = {
             label: '',
             fontSize: '12',
             fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif',
-            fontStyle: 'normal'
+            fontStyle: 'normal',
+            xPos: 'top',
+            yPos: 'left'
         },
         belowThresholdColour: [
             'rgba(0, 255, 0, 1.000)'
@@ -48,50 +50,58 @@ defaultOptions = Chart.Bands.defaults = {
 };
 
 function addBandLine (ctx, scale, constraints, options) {
-    var yPos = scale.getPixelForValue(options.yValue),
-        bandLine = options.bandLine;
+    var yPos = scale.getPixelForValue(options.yValue);
+    var bandLine = options.bandLine;
+    var dashLength = 8;
+    var padding = 0;
+    var lineStartPos = constraints.start + padding;
+    var lineStopPos = constraints.stop + padding;
 
-    if (bandLine.type === 'dashed') {
-        for (var i = constraints.start; i < constraints.stop; i = i + 6) {
-            drawBandLine(ctx, yPos, i, i + 4, bandLine.stroke, bandLine.colour);
-        }
-    } else {
-        drawBandLine(ctx, yPos, constraints.start, constraints.stop, bandLine.stroke, bandLine.colour);
-    }
+    var lineDrawer = bandLine.type === 'dashed' ? drawDashedLine : drawLine;
 
-    if(bandLine.label !== undefined && bandLine.label.length > 0) {
-
-        addBandLineLabel(
-            ctx,
-            bandLine,
-            {
-                'x': constraints.start,
-                'y': constraints.top - options.bandLine.fontSize * 2
-            }
-        );
+    lineDrawer(ctx, yPos + (bandLine.stroke / 4), lineStartPos, lineStopPos, bandLine.stroke, bandLine.colour, dashLength);
+    if (bandLine.label) {
+        console.log('opts', options);
+        addBandLineLabel(ctx, constraints, options.bandLine, dashLength, lineDrawer);
     }
 }
 
-function drawBandLine (ctx, yPos, start, stop, stroke, colour) {
+function addBandLineLabel(ctx, constraints, bandLine, dashLength, lineDrawer) {
+        ctx.font = helpers.fontString(bandLine.fontSize, bandLine.fontStyle, bandLine.fontFamily);
+        ctx.fillStyle = bandLine.fontColour || 'black';
+
+        var textLength = ctx.measureText(bandLine.label).width;
+        var labelLineLength = 20
+        var labelYPos = bandLine.yPos === 'top' ? constraints.top - (bandLine.fontSize * 2) - 8 : constraints.bottom + (bandLine.fontSize * 2) + 8;
+        var labelXPos = bandLine.xPos === 'left' ? constraints.start + labelLineLength : constraints.stop - textLength;
+        var labelLineYPos = labelYPos - (bandLine.stroke * 0.25);
+        var labelLineXPos = labelXPos - 30;
+
+        ctx.fillText(bandLine.label, labelXPos, labelYPos);
+
+        lineDrawer(ctx, labelLineYPos, labelLineXPos, labelLineXPos + labelLineLength, bandLine.stroke, bandLine.colour, dashLength);
+}
+
+function drawDashedLine(ctx, y, x0, x1, lineWidth, colour, dashLength) {
+    var length = dashLength || 6;
+
+    var dashGapRatio = 0.666;
+    var gap = length * dashGapRatio;
+    var dashDistance = length + gap;
+
+    for (var dashStart = x0; dashStart < x1; dashStart = dashStart + dashDistance) {
+        var dashEnd = dashStart + dashLength;
+        drawLine(ctx, y, dashStart, dashEnd, lineWidth, colour);
+    }
+}
+
+function drawLine (ctx, y, x0, x1, lineWidth, colour) {
     ctx.beginPath();
-    ctx.moveTo(start, yPos);
-    ctx.lineTo(stop, yPos);
-    ctx.lineWidth = stroke;
+    ctx.moveTo(x0, y);
+    ctx.lineTo(x1, y);
+    ctx.lineWidth = lineWidth;
     ctx.strokeStyle = colour;
     ctx.stroke();
-}
-
-function addBandLineLabel (ctx, options, position) {
-    ctx.font = helpers.fontString(options.fontSize, options.fontStyle, options.fontFamily);
-    ctx.fillStyle = options.colour;
-    ctx.fillText(options.label, position.x, position.y);
-    if (options.type === 'dashed') {
-        for (var i = 10; i < position.x - 10; i = i + 6) {
-            drawBandLine(ctx, (position.y + options.fontSize * 0.5), i, i + 4, options.stroke, options.colour);
-        }
-    } else {
-        drawBandLine(ctx, position.y, 10, position.x - 10, options.stroke, options.colour);
-    }
 }
 
 function pluginBandOptionsHaveBeenSet (bandOptions) {
@@ -131,7 +141,7 @@ var BandsPlugin = Chart.PluginBase.extend({
         isPluginSupported(chartInstance.config.type);
         // capture the baseColors so we can reapply on resize.
         for (var i = 0; i < chartInstance.chart.config.data.datasets.length; i++) {
-            baseColor[i] = chartInstance.chart.config.data.datasets[i][colourProfile]; 
+            baseColor[i] = chartInstance.chart.config.data.datasets[i][colourProfile];
         }
     },
 
@@ -144,19 +154,20 @@ var BandsPlugin = Chart.PluginBase.extend({
 
         node = chartInstance.chart.ctx.canvas;
         bandOptions = helpers.configMerge(Chart.Bands.defaults.bands, chartInstance.options.bands);
-
         if (pluginBandOptionsHaveBeenSet(bandOptions)) {
-
             for (var i = 0; i < chartInstance.chart.config.data.datasets.length; i++) {
-                fill = calculateGradientFill(
-                                        node.getContext("2d"),
-                                        chartInstance.scales['y-axis-0'],
-                                        chartInstance.chart.height,
-                                        baseColor[i],
-                                        bandOptions.belowThresholdColour[i],
-                                        bandOptions.yValue
-                                    );
-                chartInstance.chart.config.data.datasets[i][colourProfile] = fill;
+                // Don't reapply the fill if it has already been applied (in which case it will no longer be of type String
+                if (typeof baseColor[i] === 'string') {
+                    fill = calculateGradientFill(
+                        node.getContext("2d"),
+                        chartInstance.scales['y-axis-0'],
+                        chartInstance.chart.height,
+                        baseColor[i],
+                        bandOptions.belowThresholdColour[i],
+                        bandOptions.yValue
+                    );
+                    chartInstance.chart.config.data.datasets[i][colourProfile] = fill;
+                }
             }
         } else {
             console.warn('ConfigError: The Chart.Bands.js config seems incorrect');
@@ -178,6 +189,7 @@ var BandsPlugin = Chart.PluginBase.extend({
                 chartInstance.scales['y-axis-0'],
                 {
                     'top': chartInstance.chartArea.top,
+                    'bottom': chartInstance.boxes[2].bottom,
                     'start': chartInstance.chartArea.left,
                     'stop': chartInstance.chartArea.right,
                 },
@@ -191,4 +203,6 @@ var BandsPlugin = Chart.PluginBase.extend({
 });
 
 Chart.pluginService.register(new BandsPlugin());
+
+
 },{"Chart":1}]},{},[2]);
