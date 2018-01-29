@@ -120,7 +120,7 @@ var BandsPlugin = Chart.PluginBase.extend({
         isPluginSupported(chartInstance.config.type);
         // capture the baseColors so we can reapply on resize.
         for (var i = 0; i < chartInstance.chart.config.data.datasets.length; i++) {
-            baseColor[i] = chartInstance.chart.config.data.datasets[i][colourProfile]; 
+            baseColor[i] = chartInstance.chart.config.data.datasets[i][colourProfile];
         }
     },
 
@@ -133,19 +133,20 @@ var BandsPlugin = Chart.PluginBase.extend({
 
         node = chartInstance.chart.ctx.canvas;
         bandOptions = helpers.configMerge(Chart.Bands.defaults.bands, chartInstance.options.bands);
-
         if (pluginBandOptionsHaveBeenSet(bandOptions)) {
-
             for (var i = 0; i < chartInstance.chart.config.data.datasets.length; i++) {
-                fill = calculateGradientFill(
-                                        node.getContext("2d"),
-                                        chartInstance.scales['y-axis-0'],
-                                        chartInstance.chart.height,
-                                        baseColor[i],
-                                        bandOptions.belowThresholdColour[i],
-                                        bandOptions.yValue
-                                    );
-                chartInstance.chart.config.data.datasets[i][colourProfile] = fill;
+                // Don't reapply the fill if it has already been applied (in which case it will no longer be of type String
+                if (typeof baseColor[i] === 'string') {
+                    fill = calculateGradientFill(
+                        node.getContext("2d"),
+                        chartInstance.scales['y-axis-0'],
+                        chartInstance.chart.height,
+                        baseColor[i],
+                        bandOptions.belowThresholdColour[i],
+                        bandOptions.yValue
+                    );
+                    chartInstance.chart.config.data.datasets[i][colourProfile] = fill;
+                }
             }
         } else {
             console.warn('ConfigError: The Chart.Bands.js config seems incorrect');
@@ -180,3 +181,4 @@ var BandsPlugin = Chart.PluginBase.extend({
 });
 
 Chart.pluginService.register(new BandsPlugin());
+
