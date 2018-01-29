@@ -1,6 +1,6 @@
 /*!
  * Chart.bands.js
- * Version: v0.4.0-rc
+ * Version: v0.5.0-rc
  *
  * Copyright 2016 BBC
  * Released under the MIT license
@@ -61,7 +61,6 @@ function addBandLine (ctx, scale, constraints, options) {
 
     lineDrawer(ctx, yPos + (bandLine.stroke / 4), lineStartPos, lineStopPos, bandLine.stroke, bandLine.colour, dashLength);
     if (bandLine.label) {
-        console.log('opts', options);
         addBandLineLabel(ctx, constraints, options.bandLine, dashLength, lineDrawer);
     }
 }
