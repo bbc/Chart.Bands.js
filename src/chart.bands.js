@@ -50,7 +50,6 @@ function addBandLine (ctx, scale, constraints, options) {
 
     lineDrawer(ctx, yPos + (bandLine.stroke / 4), lineStartPos, lineStopPos, bandLine.stroke, bandLine.colour, dashLength);
     if (bandLine.label) {
-        console.log('opts', options);
         addBandLineLabel(ctx, constraints, options.bandLine, dashLength, lineDrawer);
     }
 }
