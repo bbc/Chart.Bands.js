@@ -4,7 +4,7 @@ A plugin for Chart.js >= 2.1.3 thats allows banding on a chart
 
 Sometimes when displaying information on a line chart you want to differentiate between values above and below a threshold in a dataset.
 
-For example if showing Farenheit tempratures over time you may want to draw attention to values above and below freezing.
+For example if showing Fahrenheit tempratures over time you may want to draw attention to values above and below freezing.
 
 This plugin allows you to do that easily and primarily supports line charts, while it also allows for use on bubble charts your mileage may vary dependant on the data
 
